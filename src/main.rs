@@ -2,6 +2,7 @@
 extern crate rocket;
 
 use rocket::form::Form;
+use rocket::fs::{relative, FileServer};
 use rocket::tokio::select;
 use rocket::{
     response::stream::{Event, EventStream},
@@ -64,5 +65,6 @@ async fn events(queue: &State<Sender<Message>>, mut end: Shutdown) -> EventStrea
 fn rocket() -> _ {
     rocket::build()
         .manage(channel::<Message>(1024).0)
-        .mount("/test", routes![test])
+        .mount("/", routes![test, post, events])
+        .mount("/", FileServer::from(relative!("static")))
 }
